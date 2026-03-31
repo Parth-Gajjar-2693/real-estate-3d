@@ -1,38 +1,59 @@
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { useRef } from "react";
-
-function AnimatedBox() {
-  const meshRef = useRef<any>();
-
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-
-    // rotation
-    meshRef.current.rotation.y = time * 0.5;
-
-    // floating effect
-    meshRef.current.position.y = Math.sin(time) * 0.5;
-  });
-
-  return (
-    <mesh ref={meshRef}>
-      <icosahedronGeometry args={[2, 0]} />
-      <meshStandardMaterial color="#6366f1" wireframe />
-    </mesh>
-  );
-}
+import { motion, useMotionValue, useTransform } from "framer-motion";
+import { useEffect } from "react";
 
 export default function HeroScene() {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // Mouse move tracking
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX - window.innerWidth / 2);
+      mouseY.set(e.clientY - window.innerHeight / 2);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
+
+  // Parallax transforms
+  const rotateX = useTransform(mouseY, [-300, 300], [5, -5]);
+  const rotateY = useTransform(mouseX, [-300, 300], [-5, 5]);
+
+  const translateX = useTransform(mouseX, [-300, 300], [-20, 20]);
+  const translateY = useTransform(mouseY, [-300, 300], [-20, 20]);
+
   return (
-    <Canvas
-      style={{ width: "100%", height: "100%" }}
-      camera={{ position: [0, 0, 5] }}
-    >
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[2, 2, 5]} />
-      <AnimatedBox />
-      <OrbitControls enableZoom={false} />
-    </Canvas>
+    <div className="absolute inset-0 overflow-hidden">
+      
+      {/* Background Layer */}
+      <motion.img
+        src="/room.jpg"
+        alt="Room"
+        className="absolute inset-0 w-full h-full object-cover scale-110 blur-sm"
+        style={{ translateX, translateY }}
+      />
+
+      {/* Mid Layer */}
+      <motion.img
+        src="/room.jpg"
+        alt="Room Mid"
+        className="absolute inset-0 w-full h-full object-cover opacity-80"
+        style={{ rotateX, rotateY }}
+      />
+
+      {/* Front Layer */}
+      <img
+        src="/room.jpg"
+        alt="Room Front"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-black" />
+
+      {/* Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.25),transparent_40%)]" />
+    </div>
   );
 }
