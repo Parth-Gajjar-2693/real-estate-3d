@@ -1,6 +1,6 @@
-import CTA from "./components/sections/CTA/CTA";
 import Experience from "./components/sections/Experience/Experience";
 import Features from "./components/sections/Features/Features";
+import FooterSection from "./components/sections/Footer/FooterSection";
 import Hero from "./components/sections/Hero/Hero";
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
       <Hero />
       <Experience />
       <Features />
-      <CTA />
+      <FooterSection/>
     </div>
   );
 }
